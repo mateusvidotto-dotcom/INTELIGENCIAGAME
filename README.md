@@ -7,6 +7,8 @@ Jogo web estático para prática de raciocínio lógico, atenção, memória, ma
 ## O que está implementado
 
 - Painel inicial, navegação responsiva e 12 laboratórios com 269 desafios iniciais, distribuídos em bancos próprios por habilidade.
+- 124 conjuntos de alternativas revisados editorialmente, com respostas reescritas em alguns itens para reduzir pistas de comprimento; opções objetivas embaralhadas em cada sessão sem alterar o gabarito.
+- Atenção e memória com variantes procedurais e diferentes famílias de tarefa, além de seleção adaptativa que evita questões recentemente vistas e intercala mecânicas quando o banco permite.
 - Questões de múltipla escolha, resposta numérica, contagem de símbolos, memória de sequência e reflexões abertas com checklist de autoavaliação.
 - Nove níveis internos de dificuldade, XP, recompensas e recomendações heurísticas baseadas no histórico recente.
 - Sessões adaptativas, treino livre, desafio surpresa, revisão e campanha de cinco etapas interdisciplinares.
@@ -15,7 +17,7 @@ Jogo web estático para prática de raciocínio lógico, atenção, memória, ma
 - Painel de evolução por módulo, histórico, métricas de tentativa/confiança/uso de pistas e conquistas.
 - Persistência via `localStorage`, exportação e importação de backup JSON com validação de estrutura.
 - Preferências de acessibilidade, suporte a teclado, foco visível, responsividade e respeito à preferência de movimento reduzido.
-- Autotestes de integridade de módulos e questões no navegador.
+- Autotestes de integridade de módulos e questões no navegador e testes de núcleo executáveis com Node.js.
 
 As atividades abertas são registradas para reflexão e autoavaliação; a aplicação não finge julgar automaticamente a qualidade de respostas discursivas. O motor adaptativo é uma heurística de jogo documentada no código, não um método psicométrico validado.
 
@@ -50,8 +52,15 @@ mind-forge-omega/
 │   │   └── metacognition.js
 │   └── tests/
 │       └── self-tests.js
+├── tools/
+│   ├── export-question-bank.cjs
+│   ├── audit_questions.py
+│   └── run-tests.cjs
+├── .github/workflows/
+│   └── quality-check.yml
 ├── tests/
 │   └── test-plan.md
+├── .nojekyll
 ├── LICENSE
 └── .gitignore
 ```
@@ -68,7 +77,7 @@ mind-forge-omega/
 
 4. Abra `http://localhost:8000` em um navegador moderno.
 
-Não é necessário instalar pacotes. Servir a pasta por HTTP é recomendado para que o comportamento do armazenamento local seja mais previsível que a abertura direta por `file://`.
+Não é necessário instalar pacotes para executar o jogo. Servir a pasta por HTTP é recomendado para que o comportamento do armazenamento local seja mais previsível que a abertura direta por `file://`. Python neste comando é só um servidor local simples; não é dependência de execução do jogo publicado.
 
 ## Executar o autoteste
 
@@ -81,6 +90,28 @@ MindForge.Tests.run()
 ```
 
 O retorno contém `ok`, `failures`, `moduleCount` e `questionCount`.
+
+
+## Qualidade do banco e testes automatizados
+
+O repositório inclui ferramentas independentes para detectar falhas estruturais antes da publicação:
+
+- `tools/export-question-bank.cjs` carrega os módulos e exporta o banco efetivo, incluindo as revisões editoriais de alternativas.
+- `tools/audit_questions.py` verifica IDs duplicados, tipos e níveis inválidos, alternativas objetivas repetidas ou incompletas, coerência de respostas de memória, perguntas repetidas e indícios de desequilíbrio nas alternativas. É uma auditoria estrutural/heurística, não um avaliador automático definitivo de qualidade pedagógica.
+- `tools/run-tests.cjs` executa os autotestes de questões, amostragem de variantes geradas, embaralhamento do gabarito e fluxos do núcleo como pontuação, persistência, revisão e seleção adaptativa.
+- `.github/workflows/quality-check.yml` executa a verificação de sintaxe, auditoria e testes no GitHub Actions ao enviar alterações para `main`/`master`, abrir um pull request ou disparar o fluxo manualmente.
+
+Para executar tudo localmente, na raiz do repositório:
+
+```bash
+node tools/export-question-bank.cjs .question-bank.audit.json
+python tools/audit_questions.py .question-bank.audit.json --strict
+node tools/run-tests.cjs
+```
+
+É necessário ter Node.js e Python instalados **apenas para executar as ferramentas de desenvolvimento**. O site publicado não precisa de Python para funcionar; continua sendo HTML, CSS e JavaScript estáticos. O GitHub Pages não executa Python do lado do servidor, mas o GitHub Actions pode executar este auditor durante o controle de qualidade. Consulte a [documentação oficial do GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site).
+
+A interface embaralha as alternativas preservando o gabarito, reduzindo padrões de posição da resposta correta. A seleção adaptativa evita IDs vistos recentemente quando há banco suficiente e intercala famílias de tarefa. Algumas tarefas procedurais de atenção e memória geram variantes em cada sessão. A geração aleatória reduz a repetição mecânica, mas não substitui a revisão e expansão contínua do conteúdo.
 
 ## Publicar no GitHub Pages
 
@@ -109,7 +140,7 @@ Cada arquivo em `scripts/modules/` registra um módulo usando `MindForge.registe
 - `reference`: referência textual ou bíblica, quando relevante;
 - `criteria`: critérios de autoavaliação em atividades abertas.
 
-Depois de adicionar uma questão, abra `?test=1`, resolva-a manualmente e confirme a explicação e o resultado. O autoteste valida a estrutura, não substitui uma revisão editorial do conteúdo.
+Depois de adicionar uma questão, abra `?test=1`, resolva-a manualmente e confirme a explicação e o resultado. O autoteste valida a estrutura e algumas regras geradas, mas não substitui uma revisão editorial do conteúdo.
 
 ## Persistência, backup e privacidade
 

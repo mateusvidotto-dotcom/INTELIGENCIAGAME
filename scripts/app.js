@@ -85,7 +85,7 @@
     const activeDays = state.activeDays || [];
     let streak = 0;
     for (let back = 0; back < 370; back++) {
-      const d = new Date(); d.setDate(d.getDate() - back); const key = d.toISOString().slice(0,10);
+      const d = new Date(); d.setDate(d.getDate() - back); const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
       if (activeDays.includes(key)) streak++; else if (back > 0) break; else break;
     }
     $('#streak-count').textContent = streak;
@@ -195,8 +195,9 @@
       }).filter(Boolean);
       if (!queue.length) { toast('Você já concluiu as cinco etapas da Expedição Omega.'); renderCampaign(); return; }
     } else if (sessionMode === 'review') {
-      const all = MF.Review.allItems().filter(item => item.status !== 'mastered');
-      queue = all.slice(0, limit || MF.state.settings.sessionLength).map(item => ({...item.question, isReview:true}));
+      const due = MF.Review.dueItems(false);
+      const available = due.length ? due : MF.Review.allItems().filter(item => item.status !== 'mastered');
+      queue = available.slice(0, limit || MF.state.settings.sessionLength).map(item => ({...item.question, isReview:true, reviewWasDue: item.dueAt <= Date.now()}));
       if (!queue.length) { toast('Sua fila de revisão está vazia. Responda a outros desafios para criar itens de revisão.'); navigate('review'); return; }
     } else {
       const module = MF.getModule(moduleId);
@@ -206,6 +207,7 @@
       const count = limit || Number(MF.state.settings.sessionLength) || 5;
       queue = picked.slice(0, Math.min(count, picked.length));
     }
+    queue = queue.map(q => sessionMode === 'review' ? MF.cloneQuestion(q) : MF.instantiateQuestion(q)).map(q => MF.shuffleChoiceOptions(q));
     app.session = {
       mode:sessionMode, moduleId:moduleId || 'campaign', questions:queue, currentIndex:0, results:[],
       hintsByQuestion:{}, selectedOption:null, confidence:3, hintIndex:0, hintUsedCurrent:false,
@@ -252,9 +254,9 @@
       content += `<label class="input-label" for="answer-field">${isCount?'Quantidade encontrada':q.type==='number'?'Resposta numérica':'Sua resposta'}</label><input id="answer-field" class="answer-input" type="${isCount?'number':'text'}" ${isCount?'min="0" step="1" inputmode="numeric"':'inputmode="decimal"'} autocomplete="off" value="${escapeHTML(session.answerDraft)}" placeholder="${placeholder}" ${session.feedback?'disabled':''}>`;
     } else if (q.type === 'memory') {
       if (session.memoryStage === 'show') {
-        content += `<div class="question-visual memory-display" aria-label="Sequência para memorizar">${escapeHTML(q.sequence.join('  '))}</div><p class="question-context">Observe a sequência e tente guardar os símbolos na ordem apresentada. Quando estiver pronto, esconda-a para tentar recordar.</p>`;
+        content += `<div class="question-visual memory-display" aria-label="Sequência para memorizar">${escapeHTML(q.sequence.join('  '))}</div><p class="question-context">Memorize os símbolos e a regra da tarefa acima. Quando estiver pronto, oculte a sequência para responder sem consultá-la.</p>`;
       } else {
-        content += `<div class="question-visual memory-hidden">Sequência oculta — agora recupere os símbolos na ordem correta.</div><label class="input-label" for="answer-field">Digite ou cole a sequência na ordem lembrada</label><input id="answer-field" class="answer-input" type="text" autocomplete="off" value="${escapeHTML(session.answerDraft)}" placeholder="Ex.: ▲ ● ◆" ${session.feedback?'disabled':''}>`;
+        content += `<div class="question-visual memory-hidden">Sequência oculta — aplique agora a regra solicitada.</div><label class="input-label" for="answer-field">Sua resposta após aplicar a regra</label><input id="answer-field" class="answer-input" type="text" autocomplete="off" value="${escapeHTML(session.answerDraft)}" placeholder="Digite os símbolos na ordem exigida" ${session.feedback?'disabled':''}>`;
       }
     } else if (q.type === 'open') {
       content += `<label class="input-label" for="answer-field">Sua reflexão ou proposta</label><textarea id="answer-field" class="answer-input answer-textarea" maxlength="2400" placeholder="Explique seu raciocínio. Não existe um gabarito automático para esta atividade aberta." ${session.feedback?'disabled':''}>${escapeHTML(session.answerDraft)}</textarea>`;
@@ -280,7 +282,7 @@
     let answerInfo = '';
     if (!correct) {
       if (q.type==='choice') answerInfo = `<p><strong>Resposta esperada:</strong> ${escapeHTML(q.options[q.answer])}</p>`;
-      else if (q.type==='memory') answerInfo = `<p><strong>Sequência correta:</strong> ${escapeHTML(q.sequence.join(' '))}</p>`;
+      else if (q.type==='memory') answerInfo = `<p><strong>Resposta esperada:</strong> ${escapeHTML(Array.from(String(q.answer)).join(' '))}</p>`;
       else answerInfo = `<p><strong>Resposta esperada:</strong> ${escapeHTML(q.answer)}</p>`;
     }
     return `<div class="feedback-panel ${correct?'':'is-wrong'}"><div class="feedback-title ${correct?'good':'bad'}">${correct?'✓ Resposta correta':'× Ainda não — revise o raciocínio'}</div>${answerInfo}<p>${escapeHTML(q.explanation || 'Revise as condições do enunciado e tente novamente.')}</p>${q.reference?`<div class="feedback-reference">Referência: ${escapeHTML(q.reference)}</div>`:''}<p class="feedback-reference">${correct?`+${fb.xpGain||0} XP registrados.`:'Você pode tentar novamente ou seguir para a próxima questão. O erro também entrou na fila de revisão.'}</p></div>`;
@@ -446,7 +448,7 @@
     const item = MF.state.reviewItems.find(entry=>entry.id===id);
     if (!item) { toast('Este item não foi encontrado na fila.',true); return; }
     startSession(item.moduleId,'review-one',1);
-    app.session.questions = [{...item.question,isReview:true}];
+    app.session.questions = [MF.shuffleChoiceOptions({...item.question,isReview:true})];
     app.session.mode='review';
     $('#session-mode-tag').textContent='REVISÃO DE UM ITEM';
     renderQuestion();

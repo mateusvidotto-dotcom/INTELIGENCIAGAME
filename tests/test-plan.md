@@ -30,12 +30,25 @@
 
 Este checklist acompanha o projeto. As verificações devem ser marcadas depois de executadas no navegador alvo.
 
-## Verificações automatizadas executadas nesta entrega
+## Verificações automatizadas já executadas nesta versão
 
-- [x] Verificação sintática (`node --check`) de todos os arquivos JavaScript.
-- [x] Autotestes de integridade: 12 módulos, 269 questões, IDs e estruturas válidas; nenhuma falha reportada.
-- [x] Teste em Chromium/Playwright: tela inicial e botão de Desafio de Elite; questão avançada renderizada e feedback após submissão.
-- [x] Teste responsivo em viewport móvel: menu de módulos funcional e sem transbordamento horizontal.
-- [x] Fluxos de módulos, campanha interdisciplinar, feedback, nova tentativa e fila de revisão exercitados no navegador durante a verificação do projeto.
+- [x] Sintaxe de todos os arquivos JavaScript (`node --check`).
+- [x] Auditoria estrita do banco: 12 módulos, 269 questões, 124 conjuntos de alternativas revisados, sem erros estruturais, repetição exata de enunciados, quase-duplicatas ou alertas de pista por comprimento.
+- [x] Testes automatizados de pontuação, armazenamento simulado, fila de revisão, variantes de atenção/memória e diversidade adaptativa.
+- [x] Verificação no Chromium com a versão portátil incorporada: tela inicial e 12 módulos renderizam, autoteste passa, desafio de elite inicia, a resposta provoca feedback após tentativa e o layout móvel em 390 px não apresenta rolagem horizontal.
+- [x] Fluxo de tentativa e feedback exercitado nos 12 módulos; nenhum erro JavaScript de página/console detectado.
+- [x] Nenhum erro JavaScript de página detectado durante o teste de navegação e resposta no Chromium.
 
-A lista manual acima continua sendo útil para novas versões e para verificar navegadores/dispositivos diferentes. Os autotestes validam a integridade estrutural; não substituem revisão editorial especializada de todos os conteúdos nem testes com usuários reais.
+## Repetir os testes localmente
+
+Execute na raiz do repositório:
+
+```bash
+node tools/export-question-bank.cjs .question-bank.audit.json
+python tools/audit_questions.py .question-bank.audit.json --strict
+node tools/run-tests.cjs
+```
+
+O fluxo `.github/workflows/quality-check.yml` realiza estes passos automaticamente no GitHub Actions. Os testes cobrem sintaxe JavaScript, integridade do banco, tipos e níveis de questões, unicidade de IDs, distribuição de alternativas depois do embaralhamento, variantes procedurais de atenção/memória, XP, persistência, fila de revisão e diversidade adaptativa.
+
+A auditoria não consegue provar automaticamente que todos os distratores são pedagogicamente excelentes, que toda interpretação bíblica é correta ou que a experiência funciona em todos os dispositivos. A revisão humana e a inspeção em navegadores reais continuam necessárias.
