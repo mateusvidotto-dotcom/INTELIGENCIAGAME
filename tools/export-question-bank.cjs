@@ -39,6 +39,8 @@ const files = [
   'scripts/modules/strategy.js',
   'scripts/modules/interdisciplinary.js',
   'scripts/modules/metacognition.js',
+  'data/obmep/questions.js',
+  'scripts/modules/obmep.js',
   'scripts/core/quality-overrides.js'
 ];
 for (const relative of files) {

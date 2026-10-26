@@ -8,6 +8,7 @@
   <title>Mind Forge Omega ∞ — A Forja do Intelecto</title>
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/responsive.css">
+  <link rel="stylesheet" href="styles/learning-tools.css">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
@@ -24,6 +25,10 @@
         <button class="nav-item" data-nav="campaign"><span class="nav-icon">⚑</span> Campanha</button>
         <button class="nav-item" data-nav="review"><span class="nav-icon">↻</span> Revisão inteligente <span class="nav-count" id="review-nav-count">0</span></button>
         <button class="nav-item" data-nav="progress"><span class="nav-icon">▥</span> Evolução</button>
+        <button class="nav-item" data-nav="obmep"><span class="nav-icon">∑</span> Biblioteca OBMEP</button>
+        <button class="nav-item" data-nav="study"><span class="nav-icon">⌘</span> Estudo inteligente</button>
+        <button class="nav-item" data-nav="plan"><span class="nav-icon">▦</span> Plano de treino</button>
+        <button class="nav-item" data-nav="games"><span class="nav-icon">♟</span> Jogos intelectuais</button>
       </nav>
       <div class="sidebar-label sidebar-label-spaced">SEU TREINO</div>
       <div class="sidebar-focus" id="sidebar-focus">
@@ -33,7 +38,7 @@
       <div class="sidebar-bottom">
         <button class="nav-item" data-nav="settings"><span class="nav-icon">⚙</span> Configurações</button>
         <div class="sidebar-note"><span class="note-icon">✦</span><p>Curiosidade. Precisão. Progresso.</p></div>
-        <div class="sidebar-version">EDIÇÃO LOCAL · v1.1.0</div>
+        <div class="sidebar-version">EDIÇÃO LOCAL · v1.2.1</div>
       </div>
     </aside>
 
@@ -148,6 +153,37 @@
           <div class="panel export-panel"><div><div class="eyebrow">PORTABILIDADE</div><h3>Seus dados, sob seu controle</h3><p>Exporte um backup do progresso em JSON para guardar ou importar em outro navegador. Os dados não são enviados a um servidor.</p></div><div class="export-actions"><button class="button button-secondary" id="export-progress">Exportar progresso ↓</button><label class="button button-ghost file-button" for="import-progress-file">Importar backup ↑</label><input id="import-progress-file" type="file" accept="application/json,.json" hidden></div></div>
         </section>
 
+        <section class="view" id="view-obmep" aria-labelledby="obmep-title">
+          <div class="page-heading"><div class="eyebrow">MATEMÁTICA OLÍMPICA · QUESTÕES DE ORIGEM IDENTIFICADA</div><h1 id="obmep-title">Biblioteca OBMEP</h1><p>Pesquise as páginas fornecidas, estude a figura original e registre uma resolução justificada. A extração de texto pode conter erros; a imagem é a fonte primária.</p></div>
+          <div class="hub-metrics" id="obmep-metrics"></div>
+          <div class="panel obmep-notice"><strong>Integridade da fonte</strong><p>Foram disponibilizados 14 arquivos de missão. A missão 9 não está no conjunto enviado. As folhas não incluem um gabarito comentado completo; somente soluções revisadas individualmente são identificadas como tal. Não inventamos as respostas ausentes.</p></div>
+          <div class="panel obmep-mock-panel"><div><div class="eyebrow">SESSÃO ESTRUTURADA</div><h2>Simulado OBMEP · 4 questões</h2><p>Uma seleção curta de problemas para resolver sem cronômetro obrigatório. Registre compreensão, estratégia, desenvolvimento e verificação; as respostas abertas não recebem uma nota automática.</p></div><button type="button" class="button button-primary" data-obmep-mock>Iniciar simulado ↗</button></div>
+          <div class="panel obmep-filter-panel"><label class="input-label" for="obmep-search">Pesquisar no enunciado e nos metadados</label><input class="answer-input" id="obmep-search" type="search" placeholder="Ex.: geometria, função, números, probabilidade…" autocomplete="off"><div class="hub-filter-grid"><label class="input-label">Missão<select id="obmep-mission-filter" class="select-control"><option value="all">Todas as missões disponíveis</option></select></label><label class="input-label">Tema<select id="obmep-topic-filter" class="select-control"><option value="all">Todos os temas</option></select></label><label class="input-label">Transcrição<select id="obmep-transcript-filter" class="select-control"><option value="all">Todas</option><option value="yes">Texto extraído</option><option value="no">Imagem como fonte principal</option></select></label></div><div class="obmep-result-line"><span id="obmep-results-count">56 questões</span><span>Originais preservados como imagens</span></div></div>
+          <div class="obmep-question-grid" id="obmep-question-grid" aria-live="polite"></div>
+        </section>
+
+        <section class="view" id="view-study" aria-labelledby="study-title">
+          <div class="page-heading"><div class="eyebrow">MÉTODOS APLICÁVEIS</div><h1 id="study-title">Estudo inteligente</h1><p>Tutoriais curtos com procedimentos concretos, exemplos e uma ação para experimentar hoje.</p></div>
+          <div class="study-intro panel"><div><div class="eyebrow">PRINCÍPIO CENTRAL</div><h2>Aprender exige recuperar, aplicar e corrigir.</h2><p>Sentir familiaridade ao reler não prova domínio. Tente recordar sem olhar, explique com suas palavras, resolva algo novo e retome o conteúdo depois de um intervalo.</p></div><div class="study-stats" id="study-completion-stat">0 de 8 aplicados</div></div>
+          <div id="study-tutorial-list" class="study-tutorial-list"></div>
+        </section>
+
+        <section class="view" id="view-plan" aria-labelledby="plan-title">
+          <div class="page-heading"><div class="eyebrow">PERCURSO PERSONALIZADO</div><h1 id="plan-title">Plano de treino</h1><p>Monte uma rotina realista pela disponibilidade e pelas prioridades. O plano orienta a prática; não promete resultados intelectuais garantidos.</p></div>
+          <form id="plan-form" class="panel plan-form">
+            <div class="hub-filter-grid"><label class="input-label">Tempo por dia<select id="plan-minutes" class="select-control"><option value="10">10 minutos</option><option value="20" selected>20 minutos</option><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60">60 minutos</option></select></label><label class="input-label">Horizonte<select id="plan-horizon" class="select-control"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option></select></label><label class="input-label">Experiência atual<select id="plan-level" class="select-control"><option value="beginner">Estou construindo a base</option><option value="intermediate" selected>Já resolvo problemas intermediários</option><option value="advanced">Busco desafios avançados</option></select></label></div>
+            <fieldset class="plan-priorities"><legend>Escolha até três prioridades</legend><label><input type="checkbox" name="plan-focus" value="obmep" checked> Matemática / OBMEP</label><label><input type="checkbox" name="plan-focus" value="logic" checked> Lógica e estratégia</label><label><input type="checkbox" name="plan-focus" value="memory"> Memória e atenção</label><label><input type="checkbox" name="plan-focus" value="critical"> Pensamento crítico</label><label><input type="checkbox" name="plan-focus" value="chess"> Xadrez e jogos</label><label><input type="checkbox" name="plan-focus" value="study"> Métodos de estudo</label></fieldset>
+            <button class="button button-primary" type="submit">Gerar / atualizar meu plano ↗</button>
+          </form>
+          <div id="plan-output" class="plan-output" aria-live="polite"></div>
+        </section>
+
+        <section class="view" id="view-games" aria-labelledby="games-title">
+          <div class="page-heading"><div class="eyebrow">JOGOS COM REGRAS EXPLÍCITAS</div><h1 id="games-title">Jogos intelectuais</h1><p>Sudoku, xadrez e problemas de planejamento. Cada jogo trabalha estratégias específicas; pontuações não medem inteligência geral.</p></div>
+          <div class="game-tabs" role="tablist" aria-label="Selecionar jogo"><button class="filter-chip is-selected" data-game-tab="sudoku" role="tab" aria-selected="true">Sudoku</button><button class="filter-chip" data-game-tab="chess" role="tab" aria-selected="false">Xadrez</button><button class="filter-chip" data-game-tab="hanoi" role="tab" aria-selected="false">Torres de Hanói</button><button class="filter-chip" data-game-tab="verbal" role="tab" aria-selected="false">Raciocínio verbal</button></div>
+          <div id="game-lab-content" class="game-lab-content"></div>
+        </section>
+
         <section class="view" id="view-settings" aria-labelledby="settings-title">
           <div class="page-heading"><div class="eyebrow">PREFERÊNCIAS PESSOAIS</div><h1 id="settings-title">Configurações</h1><p>Ajuste o ritmo e a aparência do treinamento.</p></div>
           <div class="settings-layout"><div class="settings-group"><div class="eyebrow">EXPERIÊNCIA DE JOGO</div><article class="setting-row"><div><strong>Modo sem cronômetro</strong><p>Prioriza reflexão e precisão, sem pressão por velocidade.</p></div><label class="switch"><input type="checkbox" id="setting-no-timer" checked><span class="switch-slider"></span></label></article><article class="setting-row"><div><strong>Mostrar confiança antes da resposta</strong><p>Registre de 1 a 5 quanto você confia na sua solução.</p></div><label class="switch"><input type="checkbox" id="setting-confidence" checked><span class="switch-slider"></span></label></article><article class="setting-row"><div><strong>Reduzir animações</strong><p>Limita movimentos decorativos da interface.</p></div><label class="switch"><input type="checkbox" id="setting-reduced-motion"><span class="switch-slider"></span></label></article><article class="setting-row"><div><strong>Efeitos sonoros</strong><p>Esta versão utiliza feedback visual, sem áudio obrigatório.</p></div><label class="switch"><input type="checkbox" id="setting-sound" disabled><span class="switch-slider"></span></label></article></div>
@@ -165,6 +201,7 @@
   <script src="scripts/core/adaptive-engine.js"></script>
   <script src="scripts/core/review-system.js"></script>
   <script src="scripts/core/module-registry.js"></script>
+  <script src="scripts/core/obmep-workflow.js"></script>
   <script src="scripts/modules/logic.js"></script>
   <script src="scripts/modules/attention.js"></script>
   <script src="scripts/modules/memory.js"></script>
@@ -177,8 +214,12 @@
   <script src="scripts/modules/strategy.js"></script>
   <script src="scripts/modules/interdisciplinary.js"></script>
   <script src="scripts/modules/metacognition.js"></script>
+  <script src="data/obmep/questions.js"></script>
+  <script src="scripts/modules/obmep.js"></script>
+  <script src="scripts/games/sudoku-engine.js"></script>
   <script src="scripts/core/quality-overrides.js"></script>
   <script src="scripts/tests/self-tests.js"></script>
   <script src="scripts/app.js"></script>
+  <script src="scripts/extensions/learning-hub.js"></script>
 </body>
 </html>

@@ -153,14 +153,20 @@ def main() -> int:
                     errors.append(f"{label}: resposta textual ausente")
 
         # Duplicate prompt detection excludes procedural templates, whose content varies per play.
-        for i, (prompt_a, id_a, _) in enumerate(prompt_records):
-            for prompt_b, id_b, _ in prompt_records[i + 1:]:
-                if prompt_a == prompt_b:
-                    repeated_prompts += 1
-                    warnings.append(f"{mid}/{id_b}: enunciado igual ao de {id_a}")
-                elif len(prompt_a) > 35 and len(prompt_b) > 35 and SequenceMatcher(None, prompt_a, prompt_b).ratio() >= 0.94:
-                    near_duplicates += 1
-                    warnings.append(f"{mid}/{id_b}: enunciado muito parecido com {id_a}; avaliar diversidade real")
+        # The OBMEP module stores a short page/title label as `prompt` and exposes the actual
+        # original statement through statementText + the page image. Comparing these metadata
+        # labels (e.g. "Problema olímpico — missão X, questão Y") creates false near-duplicate
+        # warnings even when the underlying official pages are distinct. Source-page identity,
+        # image existence, mission coverage and question IDs are checked by audit_obmep_catalog.py.
+        if mid != "obmep":
+            for i, (prompt_a, id_a, _) in enumerate(prompt_records):
+                for prompt_b, id_b, _ in prompt_records[i + 1:]:
+                    if prompt_a == prompt_b:
+                        repeated_prompts += 1
+                        warnings.append(f"{mid}/{id_b}: enunciado igual ao de {id_a}")
+                    elif len(prompt_a) > 35 and len(prompt_b) > 35 and SequenceMatcher(None, prompt_a, prompt_b).ratio() >= 0.94:
+                        near_duplicates += 1
+                        warnings.append(f"{mid}/{id_b}: enunciado muito parecido com {id_a}; avaliar diversidade real")
 
     print("MIND FORGE OMEGA — AUDITORIA DO BANCO")
     print(f"Módulos: {len(modules)} | Questões: {total} | Distratores revisados: {data.get('qualityOverridesApplied', 0)}")
